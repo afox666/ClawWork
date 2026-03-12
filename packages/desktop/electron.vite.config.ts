@@ -5,15 +5,10 @@ import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig({
   main: {
-    plugins: [externalizeDepsPlugin()],
-    build: {
-      rollupOptions: {
-        external: ['@clawwork/shared'],
-      },
-    },
+    plugins: [externalizeDepsPlugin({ exclude: ['@clawwork/shared'] })],
   },
   preload: {
-    plugins: [externalizeDepsPlugin()],
+    plugins: [externalizeDepsPlugin({ exclude: ['@clawwork/shared'] })],
   },
   renderer: {
     resolve: {

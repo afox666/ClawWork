@@ -170,15 +170,15 @@ CSS Variables 驱动，dark 为默认。切换方式：`<html data-theme="dark|l
 - **T1-3** Shared 类型 (types.ts, protocol.ts, constants.ts) — Drizzle ORM schema 待做
 - **T1-4** 三栏布局 (App.tsx: 260px LeftNav | flex MainArea | 320px RightPanel, 右侧可折叠)
 - **T1-5** LeftNav 静态结构 (新任务按钮, 搜索框, 文件管理入口, 示例任务列表, 设置)
+- **T1-7** Electron 主进程 WS 客户端：Gateway challenge-response 认证、心跳、指数退避重连
+- **T1-8** 消息发送：Electron → Gateway (chat.send)，含 idempotencyKey
+- **T1-9** 消息接收：Gateway 事件通过 IPC 转发到 renderer，useAgentMessages hook 按 sessionKey 路由
 
-### 下一步 — Phase 1.3: OpenClaw 通信链路
+**Phase 1 验收标准已达成：在 Electron DevTools 中通过 `window.clawwork.sendMessage()` 与 Agent 完成一轮对话，事件正确回传。**
 
-- **T1-6** Channel Plugin 完善：确保 `sendText()` 通过 WS 正确到达 Electron
-- **T1-7** Electron 主进程 WS 客户端：连接 Gateway (:18789)，心跳，断线重连
-- **T1-8** 消息发送：Electron → Gateway，携带 sessionKey
-- **T1-9** 消息接收 + sessionKey 路由：Gateway 事件按 sessionKey 分发到对应 Task store
+### 延后
 
-**Phase 1 验收标准：能在 Electron 空白页面中通过代码与 OpenClaw Agent 完成一轮对话。**
+- **T1-6** Channel Plugin 完善：Gateway 单通道已能完成完整对话，Plugin WS 通道延后到 Phase 2
 
 ### 后续 Phase 概览
 
