@@ -9,11 +9,14 @@ interface MessageState {
   messagesByTask: Record<string, Message[]>;
   /** taskId → currently streaming assistant content (delta accumulator) */
   streamingByTask: Record<string, string>;
+  /** message ID to highlight (e.g. from file navigation) */
+  highlightedMessageId: string | null;
 
   addMessage: (taskId: string, role: MessageRole, content: string) => Message;
   appendStreamDelta: (taskId: string, delta: string) => void;
   finalizeStream: (taskId: string) => void;
   clearMessages: (taskId: string) => void;
+  setHighlightedMessage: (id: string | null) => void;
 }
 
 export { EMPTY_MESSAGES };
@@ -25,6 +28,7 @@ function generateId(): string {
 export const useMessageStore = create<MessageState>((set, get) => ({
   messagesByTask: {},
   streamingByTask: {},
+  highlightedMessageId: null,
 
   addMessage: (taskId, role, content) => {
     const msg: Message = {
@@ -70,4 +74,6 @@ export const useMessageStore = create<MessageState>((set, get) => ({
       delete next[taskId];
       return { messagesByTask: next };
     }),
+
+  setHighlightedMessage: (id) => set({ highlightedMessageId: id }),
 }));

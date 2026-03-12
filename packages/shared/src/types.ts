@@ -47,9 +47,14 @@ export interface Artifact {
   messageId: string;
   type: ArtifactType;
   name: string;
+  /** Original source path (e.g. from sendMedia) */
   filePath: string;
+  /** Relative path within workspace: <taskId>/<filename> */
+  localPath: string;
   mimeType: string;
   size: number;
+  /** Git commit SHA from auto-commit, empty if not yet committed */
+  gitSha: string;
   createdAt: string;
 }
 

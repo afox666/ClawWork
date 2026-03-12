@@ -28,6 +28,24 @@ export interface ClawWorkAPI {
   onGatewayStatus: (callback: (status: ConnectionStatus) => void) => void;
   onPluginStatus: (callback: (status: ConnectionStatus) => void) => void;
   removeAllListeners: (channel: string) => void;
+
+  saveArtifact: (params: {
+    taskId: string;
+    sourcePath: string;
+    messageId: string;
+    fileName?: string;
+    mediaType?: string;
+  }) => Promise<IpcResult>;
+  listArtifacts: (taskId?: string) => Promise<IpcResult>;
+  getArtifact: (id: string) => Promise<IpcResult>;
+  readArtifactFile: (localPath: string) => Promise<IpcResult>;
+  onArtifactSaved: (callback: (artifact: unknown) => void) => void;
+
+  isWorkspaceConfigured: () => Promise<boolean>;
+  getWorkspacePath: () => Promise<string | null>;
+  getDefaultWorkspacePath: () => Promise<string>;
+  browseWorkspace: () => Promise<string | null>;
+  setupWorkspace: (path: string) => Promise<IpcResult>;
 }
 
 declare global {

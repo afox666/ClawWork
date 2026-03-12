@@ -153,3 +153,16 @@ html, body, #root {
 .prose-chat h1 { font-size: 1.15em; }
 .prose-chat h2 { font-size: 1.05em; }
 .prose-chat h3 { font-size: 1em; }
+
+/* ============================================================
+   Highlight animation (file navigation)
+   ============================================================ */
+
+@keyframes msg-highlight {
+  0% { background-color: var(--accent-dim); }
+  100% { background-color: transparent; }
+}
+
+.animate-highlight {
+  animation: msg-highlight 2s ease-out;
+}

@@ -27,9 +27,12 @@ function TaskItem({ task, active, onContextMenu }: {
   const clearUnread = useUiStore((s) => s.clearUnread);
   const hasUnread = useUiStore((s) => s.unreadTaskIds.has(task.id));
 
+  const setMainView = useUiStore((s) => s.setMainView);
+
   const handleClick = (): void => {
     setActiveTask(task.id);
     clearUnread(task.id);
+    setMainView('chat');
   };
 
   return (
@@ -72,6 +75,10 @@ export default function LeftNav() {
   const activeTaskId = useTaskStore((s) => s.activeTaskId);
   const createTask = useTaskStore((s) => s.createTask);
   const updateTaskStatus = useTaskStore((s) => s.updateTaskStatus);
+  const mainView = useUiStore((s) => s.mainView);
+  const setMainView = useUiStore((s) => s.setMainView);
+  const settingsOpen = useUiStore((s) => s.settingsOpen);
+  const setSettingsOpen = useUiStore((s) => s.setSettingsOpen);
 
   const { menuState, items, openMenu, closeMenu } = useTaskContextMenu(updateTaskStatus);
 
@@ -101,7 +108,14 @@ export default function LeftNav() {
 
       {/* Files shortcut */}
       <div className="px-4 pb-2 flex-shrink-0">
-        <button className="titlebar-no-drag w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] transition-colors">
+        <button
+          onClick={() => setMainView('files')}
+          className={`titlebar-no-drag w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors ${
+            mainView === 'files'
+              ? 'bg-[var(--accent-dim)] text-[var(--text-primary)]'
+              : 'text-[var(--text-secondary)] hover:bg-[var(--bg-hover)]'
+          }`}
+        >
           <FolderOpen size={16} className="opacity-60" /> 文件管理
         </button>
       </div>
@@ -147,7 +161,14 @@ export default function LeftNav() {
 
       {/* Settings */}
       <div className="flex-shrink-0 px-4 py-3 border-t border-[var(--border)]">
-        <button className="titlebar-no-drag w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] transition-colors">
+        <button
+          onClick={() => setSettingsOpen(!settingsOpen)}
+          className={`titlebar-no-drag w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors ${
+            settingsOpen
+              ? 'bg-[var(--accent-dim)] text-[var(--text-primary)]'
+              : 'text-[var(--text-secondary)] hover:bg-[var(--bg-hover)]'
+          }`}
+        >
           <Settings size={16} className="opacity-60" /> 设置
         </button>
       </div>

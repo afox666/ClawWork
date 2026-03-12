@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import Markdown from 'react-markdown';
 import rehypeHighlight from 'rehype-highlight';
 import type { Message } from '@clawwork/shared';
@@ -6,11 +7,21 @@ import ToolCallCard from './ToolCallCard';
 
 interface ChatMessageProps {
   message: Message;
+  highlighted?: boolean;
+  onHighlightDone?: () => void;
 }
 
-export default function ChatMessage({ message }: ChatMessageProps) {
+export default function ChatMessage({ message, highlighted, onHighlightDone }: ChatMessageProps) {
   const isUser = message.role === 'user';
   const isSystem = message.role === 'system';
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!highlighted || !ref.current) return;
+    ref.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    const timer = setTimeout(() => onHighlightDone?.(), 2000);
+    return () => clearTimeout(timer);
+  }, [highlighted, onHighlightDone]);
 
   if (isSystem) {
     return (
@@ -23,7 +34,12 @@ export default function ChatMessage({ message }: ChatMessageProps) {
   }
 
   return (
-    <div className={`flex gap-3 py-3 ${isUser ? 'flex-row-reverse' : ''}`}>
+    <div
+      ref={ref}
+      className={`flex gap-3 py-3 ${isUser ? 'flex-row-reverse' : ''} ${
+        highlighted ? 'animate-highlight rounded-lg' : ''
+      }`}
+    >
       <div
         className={`flex-shrink-0 w-7 h-7 rounded-lg flex items-center justify-center ${
           isUser ? 'bg-[var(--bg-tertiary)]' : 'bg-[var(--accent-dim)]'

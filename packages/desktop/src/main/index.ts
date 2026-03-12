@@ -4,6 +4,10 @@ import { writeFileSync } from 'fs';
 import { electronApp, optimizer, is } from '@electron-toolkit/utils';
 import { initWebSockets, destroyWebSockets } from './ws/index.js';
 import { registerWsHandlers } from './ipc/ws-handlers.js';
+import { registerArtifactHandlers } from './ipc/artifact-handlers.js';
+import { registerWorkspaceHandlers } from './ipc/workspace-handlers.js';
+import { getWorkspacePath } from './workspace/config.js';
+import { initDatabase, closeDatabase } from './db/index.js';
 
 const SCREENSHOT_PATH = '/tmp/clawwork-screenshot.png';
 
@@ -73,6 +77,14 @@ app.whenReady().then(() => {
   });
 
   registerWsHandlers();
+  registerArtifactHandlers();
+  registerWorkspaceHandlers();
+
+  const wsPath = getWorkspacePath();
+  if (wsPath) {
+    try { initDatabase(wsPath); } catch (e) { console.error('[startup] DB init failed:', e); }
+  }
+
   const mainWindow = createWindow();
   initWebSockets(mainWindow);
   setupDevScreenshot(mainWindow);
@@ -94,4 +106,5 @@ app.on('window-all-closed', () => {
 app.on('before-quit', () => {
   globalShortcut.unregisterAll();
   destroyWebSockets();
+  closeDatabase();
 });

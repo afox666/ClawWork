@@ -1,9 +1,17 @@
 import { create } from 'zustand';
 
+type MainView = 'chat' | 'files';
+
 interface UiState {
   rightPanelOpen: boolean;
   toggleRightPanel: () => void;
   setRightPanelOpen: (open: boolean) => void;
+
+  mainView: MainView;
+  setMainView: (view: MainView) => void;
+
+  settingsOpen: boolean;
+  setSettingsOpen: (open: boolean) => void;
 
   /** taskIds with unread messages (background tasks that received new content) */
   unreadTaskIds: Set<string>;
@@ -15,6 +23,12 @@ export const useUiStore = create<UiState>((set) => ({
   rightPanelOpen: false,
   toggleRightPanel: () => set((s) => ({ rightPanelOpen: !s.rightPanelOpen })),
   setRightPanelOpen: (open) => set({ rightPanelOpen: open }),
+
+  mainView: 'chat',
+  setMainView: (view) => set({ mainView: view }),
+
+  settingsOpen: false,
+  setSettingsOpen: (open) => set({ settingsOpen: open }),
 
   unreadTaskIds: new Set(),
   markUnread: (taskId) =>

@@ -30,3 +30,12 @@ export const RECONNECT_DELAY_MS = 3_000;
 
 /** Max reconnect attempts before giving up */
 export const MAX_RECONNECT_ATTEMPTS = 10;
+
+/** Default workspace directory name (under user home) */
+export const DEFAULT_WORKSPACE_DIR = 'ClawWork-Workspace';
+
+/** Config file name stored in Electron userData */
+export const CONFIG_FILE_NAME = 'clawwork-config.json';
+
+/** SQLite database file name within workspace */
+export const DB_FILE_NAME = '.clawwork.db';
