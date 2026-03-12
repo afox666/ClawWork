@@ -1,9 +1,11 @@
 import { useEffect, useRef } from 'react';
 import { parseTaskIdFromSessionKey } from '@clawwork/shared';
+import type { WsMessage } from '@clawwork/shared';
 import { toast } from 'sonner';
 import { useMessageStore } from '../stores/messageStore';
 import { useTaskStore } from '../stores/taskStore';
 import { useUiStore } from '../stores/uiStore';
+import { getAgentMessageActions } from '../lib/agent-message';
 
 interface ChatContentBlock {
   type: string;
@@ -77,6 +79,33 @@ export function useGatewayEventDispatcher(): void {
       window.clawwork.removeAllListeners('gateway-event');
     };
   }, [activeTaskId, addMessage, appendStreamDelta, finalizeStream, markUnread, updateTaskTitle]);
+
+  useEffect(() => {
+    const handler = (msg: WsMessage): void => {
+      const actions = getAgentMessageActions(msg, activeTaskId);
+      for (const action of actions) {
+        switch (action.type) {
+          case 'markUnread':
+            markUnread(action.taskId);
+            break;
+          case 'addMessage':
+            addMessage(action.taskId, action.role, action.content);
+            break;
+          case 'appendStreamDelta':
+            appendStreamDelta(action.taskId, action.delta);
+            break;
+          case 'finalizeStream':
+            finalizeStream(action.taskId);
+            break;
+        }
+      }
+    };
+
+    window.clawwork.onAgentMessage(handler);
+    return () => {
+      window.clawwork.removeAllListeners('agent-message');
+    };
+  }, [activeTaskId, addMessage, appendStreamDelta, finalizeStream, markUnread]);
 
   const wasConnectedRef = useRef(true);
   useEffect(() => {

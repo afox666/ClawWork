@@ -1,7 +1,7 @@
 # HANDOFF.md — ClawWork 项目交接文档
 
 > 面向接手的开发者（包括 AI 编码工具）。
-> 最后更新：2026-03-12
+> 最后更新：2026-03-13
 
 ---
 
@@ -21,33 +21,31 @@ ClawWork 是一个 **OpenClaw 桌面客户端**（Electron 应用）。体验对
 |-------|------|------|
 | Phase 1 | 项目骨架 + OpenClaw WS 通信 | 已完成 (已提交) |
 | Phase 2 | Task CRUD + 对话 UI + 右侧面板 | 已完成 (已提交) |
-| Phase 3 | 产物落盘 + 文件浏览器 | 已完成 (**未提交**) |
-| Phase 3.5 | Design System + UI 全面重构 + Premium Depth | 已完成 (**未提交**) |
-| Phase 4 | 主题切换、全局搜索、打包分发 | **未开始** |
+| Phase 3 | 产物落盘 + 文件浏览器 | 已完成 (已提交) |
+| Phase 3.5 | Design System + UI 全面重构 + Premium Depth | 已完成 (已提交) |
+| Phase 4 前半 | 主题切换、全局搜索 FTS5、Settings、错误处理 | 已完成 (已提交) |
+| Channel Plugin 重写 | Plugin 全通道架构 + 21 个单元测试 | 已完成 (**未提交**) |
+| Phase 4 后半 | electron-builder 打包分发 | **未开始** |
 
-**Phase 3 和 Phase 3.5 的代码已全部完成并通过验证（tsc 零错误 + dev server 正常），但尚未 git commit。**
+**Channel Plugin 重写的 19 个文件已通过验证（tsc 零错误 + vitest 21/21 + Plugin 加载正常），但尚未 git commit。**
+
+**核心卡点：E2E 消息闭环未验证。** Desktop 发消息 → Plugin WS → Agent 处理 → 响应回传 这条链路没有实际跑通过。详见第 14 节。
 
 ### 应用目前能做的
 
-- 通过 WebSocket 连接 OpenClaw Gateway（challenge-response 认证、心跳、断线重连）
+- 通过 WebSocket 连接 OpenClaw Gateway（challenge-response 认证、心跳、断线重连）+ Plugin WS(:13579)
 - 创建多个 Task（每个对应独立的 OpenClaw session），并行执行
-- 发送消息给 AI Agent，接收流式响应，Markdown 渲染 + 代码高亮
+- 发送消息给 AI Agent（通过 Plugin WS），接收流式响应（通过 Gateway 事件），Markdown 渲染 + 代码高亮
 - 工具调用折叠卡片（可展开看参数/结果）
-- 从 AI 响应提取进度步骤（`- [x]`/`- [ ]` 模式）
-- 产物面板列出当前 Task 的文件
-- Setup 引导页：首次启动选择 workspace 目录
-- SQLite 数据库（better-sqlite3 + Drizzle ORM），持久化 tasks/messages/artifacts
+- 主题切换（dark/light）、全局搜索（FTS5）、Settings 页面（Gateway URL 可配）
+- 连接状态指示器（connected/connecting/disconnected）+ sonner toast 通知
 - 产物落盘：AI 生成的文件复制到 workspace + Git auto-commit
 - 文件浏览器：按类型筛选、搜索、点击跳转到来源消息
-- 文件预览：Markdown/代码/图片 inline 预览
 - 完整设计系统：shadcn/ui + Framer Motion 动画 + Premium depth 效果
 
-### 还不能做的（Phase 4）
+### 还不能做的
 
-- 主题切换（dark/light CSS Variables 已定义，UI 切换开关未实现）
-- 全局搜索（SQLite FTS5）
-- Settings 页面（服务器地址、workspace 路径的修改）
-- 错误处理 + 断线重连 UI 提示
+- **E2E 消息发送还没跑通**（见第 14 节）
 - electron-builder 打包分发（macOS dmg）
 
 ## 3. 如何运行
@@ -99,7 +97,7 @@ clawwork/
 ├── eui.md                    # UI/UX 升级指令（只读参考）
 └── packages/
     ├── shared/               # @clawwork/shared — 零依赖类型桥梁
-    ├── channel-plugin/       # openclaw-channel-clawwork — OpenClaw 插件（骨架，暂未使用）
+    ├── channel-plugin/       # openclaw-channel-clawwork — OpenClaw Channel Plugin（全通道架构）
     └── desktop/              # @clawwork/desktop — Electron 应用（主体代码在这里）
 ```
 
@@ -130,7 +128,7 @@ channel-plugin  @clawwork/desktop
 |------|------|
 | `index.ts` | Electron 生命周期, 窗口创建 (hiddenInset titleBar), IPC + WS 初始化, 开发模式自动截图 |
 | `ws/gateway-client.ts` | `GatewayClient`: challenge-response 认证, 心跳(30s), 指数退避重连, `sendChatMessage()`, 事件通过 IPC 转发 |
-| `ws/plugin-client.ts` | `PluginClient`: Channel Plugin WS 连接（当前未使用，Gateway 直连已足够） |
+| `ws/plugin-client.ts` | `PluginClient`: Channel Plugin WS 连接，`sendUserMessage()` 发送用户消息到 Plugin |
 | `ws/index.ts` | `initWebSockets()`, getters, `destroy()` |
 | `ipc/ws-handlers.ts` | IPC: `ws:send-message`, `ws:chat-history`, `ws:list-sessions`, `ws:gateway-status` |
 | `ipc/workspace-handlers.ts` | IPC: workspace 配置读写, 初始化 |

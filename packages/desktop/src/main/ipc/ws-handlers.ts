@@ -1,22 +1,17 @@
 import { ipcMain } from 'electron';
-import { getGatewayClient } from '../ws/index.js';
+import { getGatewayClient, getPluginClient } from '../ws/index.js';
 
 export function registerWsHandlers(): void {
   ipcMain.handle('ws:send-message', async (_event, payload: {
     sessionKey: string;
     content: string;
   }) => {
-    const gw = getGatewayClient();
-    if (!gw?.isConnected) {
-      return { ok: false, error: 'gateway not connected' };
+    const plugin = getPluginClient();
+    if (!plugin?.isConnected) {
+      return { ok: false, error: 'plugin not connected' };
     }
-    try {
-      const result = await gw.sendChatMessage(payload.sessionKey, payload.content);
-      return { ok: true, result };
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : 'unknown error';
-      return { ok: false, error: msg };
-    }
+    const sent = plugin.sendUserMessage(payload.sessionKey, payload.content);
+    return sent ? { ok: true } : { ok: false, error: 'send failed' };
   });
 
   ipcMain.handle('ws:chat-history', async (_event, payload: {
@@ -52,6 +47,10 @@ export function registerWsHandlers(): void {
 
   ipcMain.handle('ws:gateway-status', () => {
     const gw = getGatewayClient();
-    return { connected: gw?.isConnected ?? false };
+    const plugin = getPluginClient();
+    return {
+      connected: gw?.isConnected ?? false,
+      pluginConnected: plugin?.isConnected ?? false,
+    };
   });
 }

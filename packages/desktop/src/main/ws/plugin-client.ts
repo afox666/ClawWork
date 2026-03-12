@@ -5,7 +5,7 @@ import {
   MAX_RECONNECT_ATTEMPTS,
   HEARTBEAT_INTERVAL_MS,
 } from '@clawwork/shared';
-import type { WsMessage, WsHeartbeat } from '@clawwork/shared';
+import type { WsMessage, WsHeartbeat, WsUserMessage } from '@clawwork/shared';
 import { isOutboundMessage } from '@clawwork/shared';
 import type { BrowserWindow } from 'electron';
 
@@ -76,6 +76,17 @@ export class PluginClient {
 
   get isConnected(): boolean {
     return this.ws?.readyState === WebSocket.OPEN;
+  }
+
+  send(message: WsMessage): boolean {
+    if (!this.ws || this.ws.readyState !== WebSocket.OPEN) return false;
+    this.ws.send(JSON.stringify(message));
+    return true;
+  }
+
+  sendUserMessage(sessionKey: string, content: string): boolean {
+    const msg: WsUserMessage = { type: 'user_message', sessionKey, content };
+    return this.send(msg);
   }
 
   private startHeartbeat(): void {

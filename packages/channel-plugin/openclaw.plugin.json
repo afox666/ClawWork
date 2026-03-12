@@ -1,8 +1,10 @@
 {
   "id": "clawwork",
   "name": "ClawWork Desktop Channel",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "OpenClaw channel plugin for ClawWork desktop client",
   "author": "samzong",
-  "license": "MIT"
+  "license": "MIT",
+  "channels": ["clawwork"],
+  "configSchema": { "type": "object", "additionalProperties": false, "properties": {} }
 }
