@@ -1,6 +1,6 @@
 import { ipcMain } from 'electron';
 import { eq, desc } from 'drizzle-orm';
-import { getDb } from '../db/index.js';
+import { getDb, isDbReady } from '../db/index.js';
 import { tasks, messages } from '../db/schema.js';
 
 interface CreateTaskParams {
@@ -36,6 +36,7 @@ function ipcError(err: unknown): { ok: false; error: string } {
 
 export function registerDataHandlers(): void {
   ipcMain.handle('data:create-task', (_event, task: CreateTaskParams) => {
+    if (!isDbReady()) return ipcError(new Error('database not ready'));
     try {
       const db = getDb();
       db.insert(tasks).values({
@@ -57,6 +58,7 @@ export function registerDataHandlers(): void {
   });
 
   ipcMain.handle('data:update-task', (_event, params: UpdateTaskParams) => {
+    if (!isDbReady()) return ipcError(new Error('database not ready'));
     try {
       const db = getDb();
       const updates: Record<string, string> = { updatedAt: params.updatedAt };
@@ -71,6 +73,7 @@ export function registerDataHandlers(): void {
   });
 
   ipcMain.handle('data:create-message', (_event, msg: CreateMessageParams) => {
+    if (!isDbReady()) return ipcError(new Error('database not ready'));
     try {
       const db = getDb();
       db.insert(messages).values({
@@ -88,6 +91,7 @@ export function registerDataHandlers(): void {
   });
 
   ipcMain.handle('data:list-tasks', () => {
+    if (!isDbReady()) return { ok: true, rows: [] };
     try {
       const db = getDb();
       const rows = db.select().from(tasks).orderBy(desc(tasks.createdAt)).all();
@@ -99,6 +103,7 @@ export function registerDataHandlers(): void {
   });
 
   ipcMain.handle('data:list-messages', (_event, params: { taskId: string }) => {
+    if (!isDbReady()) return { ok: true, rows: [] };
     try {
       const db = getDb();
       const rows = db.select().from(messages)

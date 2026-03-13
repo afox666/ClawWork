@@ -66,6 +66,10 @@ export function getSqlite(): Database.Database | null {
   return sqlite;
 }
 
+export function isDbReady(): boolean {
+  return db !== null;
+}
+
 export function closeDatabase(): void {
   sqlite?.close();
   sqlite = null;
