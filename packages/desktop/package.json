@@ -7,7 +7,9 @@
   "scripts": {
     "dev": "electron-vite dev",
     "build": "electron-vite build",
-    "build:dmg": "electron-vite build && electron-builder --mac dmg",
+    "build:dmg": "electron-vite build && electron-builder --mac dmg --arm64",
+    "build:dmg:x64": "electron-vite build && electron-builder --mac dmg --x64",
+    "build:dmg:universal": "electron-vite build && electron-builder --mac dmg --universal",
     "build:win": "electron-vite build && electron-builder --win nsis --x64",
     "preview": "electron-vite preview",
     "postinstall": "electron-builder install-app-deps"

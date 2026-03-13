@@ -7,3 +7,25 @@ out/
 .env.local
 .DS_Store
 *.log
+
+# Build artifacts
+*.tsbuildinfo
+*.dmg
+*.exe
+
+# Python
+__pycache__/
+*.pyc
+
+# npm (project uses pnpm)
+package-lock.json
+
+# Local AI tooling
+.opencode/
+
+# IDE
+.idea/
+.vscode/
+
+# OS
+Thumbs.db
