@@ -12,11 +12,15 @@
  * a store that hydrates on gateway connect.
  */
 
+export type SlashCommandCategory = 'session' | 'model' | 'access' | 'info';
+export type SlashPickerType = 'enum' | 'model';
+
 export interface SlashCommand {
   name: string;
   description: string;
-  /** Optional argument hint shown in the menu, e.g. "<model>" or "on|off" */
   argHint?: string;
+  category?: SlashCommandCategory;
+  pickerType?: SlashPickerType;
 }
 
 /**
@@ -26,34 +30,55 @@ export interface SlashCommand {
  * PLACEHOLDER: replace/extend with dynamic gateway commands when available.
  */
 export const STATIC_SLASH_COMMANDS: SlashCommand[] = [
-  // ── Session / Agent control ─────────────────────────────────────────────────
-  { name: 'new',      description: 'Reset the session',            argHint: undefined },
-  { name: 'reset',    description: 'Reset the session',            argHint: undefined },
-  { name: 'abort',    description: 'Abort the active run',         argHint: undefined },
-  { name: 'agent',    description: 'Switch agent (or open picker)', argHint: '<id>' },
-  { name: 'agents',   description: 'Open agent picker',            argHint: undefined },
-  { name: 'session',  description: 'Switch session (or open picker)', argHint: '<key>' },
-  { name: 'sessions', description: 'Open session picker',          argHint: undefined },
+  { name: 'new',      description: 'Reset the session',            argHint: undefined,                              category: 'session' },
+  { name: 'reset',    description: 'Reset the session',            argHint: undefined,                              category: 'session' },
+  { name: 'abort',    description: 'Abort the active run',         argHint: undefined,                              category: 'session' },
+  { name: 'agent',    description: 'Switch agent (or open picker)', argHint: '<id>',                                category: 'session' },
+  { name: 'agents',   description: 'Open agent picker',            argHint: undefined,                              category: 'session' },
+  { name: 'session',  description: 'Switch session (or open picker)', argHint: '<key>',                             category: 'session' },
+  { name: 'sessions', description: 'Open session picker',          argHint: undefined,                              category: 'session' },
 
-  // ── Model / Quality ─────────────────────────────────────────────────────────
-  { name: 'model',    description: 'Set model (or open picker)',   argHint: '<provider/model>' },
-  { name: 'models',   description: 'Open model picker',            argHint: undefined },
-  { name: 'think',    description: 'Set thinking level',           argHint: 'off|low|medium|high' },
-  { name: 'fast',     description: 'Set fast mode',                argHint: 'status|on|off' },
-  { name: 'verbose',  description: 'Set verbose on/off',           argHint: 'on|off' },
-  { name: 'reasoning',description: 'Set reasoning on/off',         argHint: 'on|off' },
-  { name: 'usage',    description: 'Toggle per-response usage line', argHint: 'off|tokens|full' },
+  { name: 'model',    description: 'Set model (or open picker)',   argHint: '<provider/model>',                     category: 'model', pickerType: 'model' },
+  { name: 'models',   description: 'Open model picker',            argHint: undefined,                              category: 'model' },
+  { name: 'think',    description: 'Set thinking level',           argHint: 'off|minimal|low|medium|high|adaptive', category: 'model' },
+  { name: 'fast',     description: 'Set fast mode',                argHint: 'status|on|off',                        category: 'model' },
+  { name: 'verbose',  description: 'Set verbose on/off',           argHint: 'on|off',                               category: 'model' },
+  { name: 'reasoning',description: 'Set reasoning on/off',         argHint: 'on|off|stream',                        category: 'model' },
+  { name: 'usage',    description: 'Toggle per-response usage line', argHint: 'off|tokens|full|cost',               category: 'model' },
 
-  // ── Access / Security ───────────────────────────────────────────────────────
-  { name: 'elevated', description: 'Set elevated permission level', argHint: 'on|off|ask|full' },
-  { name: 'elev',     description: 'Alias for /elevated',          argHint: 'on|off|ask|full' },
-  { name: 'activation', description: 'Set group activation mode', argHint: 'mention|always' },
+  { name: 'elevated', description: 'Set elevated permission level', argHint: 'on|off|ask|full',                     category: 'access' },
+  { name: 'elev',     description: 'Alias for /elevated',          argHint: 'on|off|ask|full',                      category: 'access' },
+  { name: 'activation', description: 'Set group activation mode', argHint: 'mention|always',                        category: 'access' },
 
-  // ── Info / Help ─────────────────────────────────────────────────────────────
-  { name: 'help',     description: 'Show slash command help',      argHint: undefined },
-  { name: 'status',   description: 'Show gateway status summary',  argHint: undefined },
-  { name: 'settings', description: 'Open settings',                argHint: undefined },
+  { name: 'help',     description: 'Show slash command help',      argHint: undefined,                              category: 'info' },
+  { name: 'status',   description: 'Show gateway status summary',  argHint: undefined,                              category: 'info' },
+  { name: 'settings', description: 'Open settings',                argHint: undefined,                              category: 'info' },
 ];
+
+export const CATEGORY_ORDER: SlashCommandCategory[] = ['session', 'model', 'access', 'info'];
+
+export const CATEGORY_I18N_KEYS: Record<SlashCommandCategory, string> = {
+  session: 'slashDashboard.categorySession',
+  model: 'slashDashboard.categoryModel',
+  access: 'slashDashboard.categoryAccess',
+  info: 'slashDashboard.categoryInfo',
+};
+
+export function groupCommandsByCategory(
+  commands: SlashCommand[] = STATIC_SLASH_COMMANDS,
+): { category: SlashCommandCategory; commands: SlashCommand[] }[] {
+  const groups = new Map<SlashCommandCategory, SlashCommand[]>();
+  for (const cmd of commands) {
+    const cat = cmd.category ?? 'info';
+    const arr = groups.get(cat);
+    if (arr) arr.push(cmd);
+    else groups.set(cat, [cmd]);
+  }
+  return CATEGORY_ORDER.filter((c) => groups.has(c)).map((c) => ({
+    category: c,
+    commands: groups.get(c)!,
+  }));
+}
 
 /**
  * Filter slash commands by the text the user has typed after the `/`.
@@ -89,4 +114,15 @@ export function parseSlashQuery(value: string, selectionStart: number): { active
   // If there's already a space in the command name, we're in arg territory
   if (afterSlash.includes(' ')) return { active: false };
   return { active: true, query: afterSlash };
+}
+
+export function getEnumOptions(cmd: SlashCommand): string[] | null {
+  if (!cmd.argHint) return null;
+  if (cmd.argHint.includes('<')) return null;
+  if (!cmd.argHint.includes('|')) return null;
+  return cmd.argHint.split('|').map((s) => s.trim()).filter(Boolean);
+}
+
+export function hasArgPicker(cmd: SlashCommand): boolean {
+  return cmd.pickerType === 'model' || getEnumOptions(cmd) !== null;
 }

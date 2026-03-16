@@ -152,9 +152,11 @@
     "model": "Model",
     "thinking": "Thinking",
     "thinkingOff": "Off",
+    "thinkingMinimal": "Minimal",
     "thinkingLow": "Low",
     "thinkingMedium": "Medium",
-    "thinkingHigh": "High"
+    "thinkingHigh": "High",
+    "thinkingAdaptive": "Adaptive"
   },
   "voiceInput": {
     "tooltip": "Voice Input (Beta)",
@@ -182,5 +184,14 @@
   },
   "dialog": {
     "selectWorkspaceDir": "Select Workspace Directory"
+  },
+  "slashDashboard": {
+    "title": "Slash Commands",
+    "description": "All available commands for the current session",
+    "tooltip": "Commands",
+    "categorySession": "Session & Agent",
+    "categoryModel": "Model & Quality",
+    "categoryAccess": "Access & Security",
+    "categoryInfo": "Info & Help"
   }
 }
