@@ -24,7 +24,7 @@ import { useTranslation } from 'react-i18next';
 import { useTaskStore } from '@/stores/taskStore';
 import { useMessageStore } from '@/stores/messageStore';
 import { useUiStore } from '@/stores/uiStore';
-import { useTaskContextMenu, type SessionActions } from '@/components/ContextMenu';
+import { useTaskContextMenu, TaskContextMenuPopover, type SessionActions } from '@/components/ContextMenu';
 import SearchResults, { type SearchResult } from '@/components/SearchResults';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -283,29 +283,7 @@ export default function LeftNav() {
 
   const overlays = (
     <>
-      <DropdownMenu
-        open={isOpen}
-        onOpenChange={(open) => {
-          if (!open) closeMenu();
-        }}
-      >
-        <DropdownMenuTrigger className="sr-only" />
-        <DropdownMenuContent style={menuPos ? { position: 'fixed', left: menuPos.x, top: menuPos.y } : undefined}>
-          {items.map((item) => (
-            <DropdownMenuItem
-              key={item.label}
-              danger={item.danger}
-              disabled={item.disabled}
-              onClick={() => {
-                item.action();
-                closeMenu();
-              }}
-            >
-              {item.label}
-            </DropdownMenuItem>
-          ))}
-        </DropdownMenuContent>
-      </DropdownMenu>
+      <TaskContextMenuPopover open={isOpen} position={menuPos} items={items} onClose={closeMenu} />
 
       <Dialog
         open={confirmAction !== null}
