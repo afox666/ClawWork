@@ -108,6 +108,14 @@ jobs:
           APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
 
+      - name: Upload arch-specific update metadata (macOS arm64)
+        if: matrix.platform == 'mac' && matrix.arch == 'arm64'
+        run: |
+          cp packages/desktop/dist/latest-mac.yml packages/desktop/dist/latest-mac-arm64.yml
+          gh release upload "$RELEASE_TAG" packages/desktop/dist/latest-mac-arm64.yml --clobber --repo clawwork-ai/clawwork
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   verify-release:
     needs: release
     runs-on: ubuntu-latest
