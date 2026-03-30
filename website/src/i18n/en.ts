@@ -2,15 +2,21 @@ export interface Translations {
   nav: {
     features: string;
     architecture: string;
-    quickStart: string;
+    blogs: string;
+    keynote: string;
+    pwa: string;
     github: string;
   };
   hero: {
     headline: string;
     tagline: string;
-    badgeMacOS: string;
-    badgeWindows: string;
-    badgeLinux: string;
+    downloadFor: string;
+    download: {
+      macOS: string;
+      macOSIntel: string;
+      windows: string;
+      linux: string;
+    };
   };
   install: {
     title: string;
@@ -29,6 +35,11 @@ export interface Translations {
     title: string;
     steps: Array<{ title: string; code: string | null }>;
   };
+  docs: {
+    title: string;
+    backToList: string;
+    noTranslation: string;
+  };
   footer: {
     product: { title: string; links: Array<{ label: string; href: string }> };
     community: { title: string; links: Array<{ label: string; href: string }> };
@@ -41,18 +52,24 @@ export const en: Translations = {
   nav: {
     features: 'Features',
     architecture: 'Architecture',
-    quickStart: 'Quick Start',
+    blogs: 'Blogs',
+    keynote: 'Keynote',
+    pwa: 'PWA',
     github: 'GitHub',
   },
   hero: {
     headline: 'Open Source OpenClaw Client',
     tagline: 'Run parallel AI tasks. Watch every tool call. Every output saved locally.',
-    badgeMacOS: 'macOS',
-    badgeWindows: 'Windows',
-    badgeLinux: 'Linux (coming soon)',
+    downloadFor: 'Download for',
+    download: {
+      macOS: 'macOS (Apple Silicon)',
+      macOSIntel: 'macOS (Intel)',
+      windows: 'Windows',
+      linux: 'Linux',
+    },
   },
   install: {
-    title: 'Install',
+    title: 'Install via Homebrew',
     orDownload: 'Or download from',
     githubReleases: 'GitHub Releases',
   },
@@ -89,6 +106,20 @@ export const en: Translations = {
         title: 'Multi-Gateway & Model',
         description: 'Connect multiple OpenClaw Gateways. Switch models and thinking levels per task.',
       },
+      {
+        title: 'Scheduled Tasks',
+        description:
+          'Run tasks on a schedule with cron, every, or at expressions. Check run history, trigger manually anytime.',
+      },
+      {
+        title: 'Agent & Tools Management',
+        description: 'Create, edit, and manage agents directly. Browse the full tools catalog for each gateway.',
+      },
+      {
+        title: 'PWA & Mobile',
+        description:
+          'Access ClawWork from any browser — desktop or mobile. Installable to your home screen, works offline.',
+      },
     ],
   },
   quickStart: {
@@ -112,12 +143,18 @@ export const en: Translations = {
       },
     ],
   },
+  docs: {
+    title: 'Blogs',
+    backToList: 'All posts',
+    noTranslation: 'This article is not yet available in English. Showing the original version.',
+  },
   footer: {
     product: {
       title: 'Product',
       links: [
         { label: 'Features', href: '#features' },
-        { label: 'Quick Start', href: '#quick-start' },
+        { label: 'PWA', href: 'https://cpwa.pages.dev' },
+        { label: 'Keynote', href: 'keynote/' },
       ],
     },
     community: {
@@ -131,15 +168,9 @@ export const en: Translations = {
     resources: {
       title: 'Resources',
       links: [
-        {
-          label: 'Documentation',
-          href: 'https://github.com/clawwork-ai/clawwork/blob/main/README.md',
-        },
+        { label: 'Blogs', href: 'blogs' },
         { label: 'Changelog', href: 'https://github.com/clawwork-ai/clawwork/releases' },
-        {
-          label: 'License',
-          href: 'https://github.com/clawwork-ai/clawwork/blob/main/LICENSE',
-        },
+        { label: 'License', href: 'https://github.com/clawwork-ai/clawwork/blob/main/LICENSE' },
       ],
     },
     copyright: '© 2026 ClawWork Contributors. Apache 2.0 License.',

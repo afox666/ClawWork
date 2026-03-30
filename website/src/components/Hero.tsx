@@ -1,26 +1,53 @@
-import { useState, useEffect } from 'react';
+import { Download } from 'lucide-react';
 import { useI18n } from '../i18n/context';
+import { useRepoInfo, REPO, detectPlatform } from '../hooks/useLatestRelease';
 
-const REPO = 'clawwork-ai/clawwork';
+const platform = detectPlatform();
 
-function useLatestRelease() {
-  const [version, setVersion] = useState<string | null>(null);
+interface DownloadButtonProps {
+  label: string;
+  href: string | null;
+  primary: boolean;
+}
 
-  useEffect(() => {
-    fetch(`https://api.github.com/repos/${REPO}/releases/latest`)
-      .then((r) => r.json())
-      .then((d: { tag_name?: string }) => {
-        if (d.tag_name) setVersion(d.tag_name);
-      })
-      .catch(() => {});
-  }, []);
-
-  return version;
+function DownloadButton({ label, href, primary }: DownloadButtonProps) {
+  return (
+    <a
+      href={href ?? `https://github.com/${REPO}/releases/latest`}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={`mono ${primary ? 'download-primary' : 'download-btn'}`}
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: '8px',
+        fontSize: '13px',
+        padding: '8px 18px',
+        borderRadius: '6px',
+      }}
+    >
+      <Download size={14} />
+      {label}
+    </a>
+  );
 }
 
 export function Hero() {
   const { t } = useI18n();
-  const version = useLatestRelease();
+  const info = useRepoInfo();
+
+  const buttons: { label: string; href: string | null; platformKey: string }[] = [
+    { label: t.hero.download.macOS, href: info?.macARM ?? null, platformKey: 'mac-arm' },
+    { label: t.hero.download.macOSIntel, href: info?.macIntel ?? null, platformKey: 'mac-intel' },
+    { label: t.hero.download.windows, href: info?.windows ?? null, platformKey: 'win' },
+    { label: t.hero.download.linux, href: info?.linux ?? null, platformKey: 'linux' },
+  ];
+
+  const sorted = [...buttons].sort((a, b) => {
+    if (a.platformKey === platform) return -1;
+    if (b.platformKey === platform) return 1;
+    return 0;
+  });
 
   return (
     <section
@@ -36,55 +63,37 @@ export function Hero() {
         href={`https://github.com/${REPO}/releases/latest`}
         target="_blank"
         rel="noopener noreferrer"
+        className="version-pill"
         style={{
           display: 'inline-flex',
           alignItems: 'center',
           gap: '8px',
-          background: 'rgba(15, 253, 13, 0.08)',
-          border: '1px solid rgba(15, 253, 13, 0.15)',
           borderRadius: '20px',
           padding: '4px 14px',
           marginBottom: '32px',
           textDecoration: 'none',
-          transition: 'background 0.15s, border-color 0.15s',
-        }}
-        onMouseEnter={(e) => {
-          const el = e.currentTarget as HTMLAnchorElement;
-          el.style.background = 'rgba(15, 253, 13, 0.15)';
-          el.style.borderColor = 'rgba(15, 253, 13, 0.35)';
-        }}
-        onMouseLeave={(e) => {
-          const el = e.currentTarget as HTMLAnchorElement;
-          el.style.background = 'rgba(15, 253, 13, 0.08)';
-          el.style.borderColor = 'rgba(15, 253, 13, 0.15)';
         }}
       >
         <span
           style={{
             width: '6px',
             height: '6px',
-            background: '#0ffd0d',
+            background: 'var(--color-accent)',
             borderRadius: '50%',
             display: 'inline-block',
           }}
         />
-        <span
-          style={{
-            fontFamily: 'var(--font-mono, "JetBrains Mono Variable", monospace)',
-            fontSize: '12px',
-            color: '#0ffd0d',
-          }}
-        >
-          {version ?? '...'}
+        <span className="mono" style={{ fontSize: '12px', color: 'var(--color-accent)' }}>
+          {info?.version ?? '...'}
         </span>
       </a>
 
       <h1
+        className="mono"
         style={{
-          fontFamily: 'var(--font-mono, "JetBrains Mono Variable", monospace)',
           fontSize: 'clamp(2rem, 5vw, 3.5rem)',
           fontWeight: 700,
-          color: '#f3f4f4',
+          color: 'var(--color-text-primary)',
           margin: '0 0 24px 0',
           lineHeight: 1.15,
           letterSpacing: '-0.02em',
@@ -96,7 +105,7 @@ export function Hero() {
       <p
         style={{
           fontSize: '18px',
-          color: '#9ca3af',
+          color: 'var(--color-text-secondary)',
           maxWidth: '600px',
           margin: '0 auto 40px',
           lineHeight: '1.7',
@@ -106,36 +115,32 @@ export function Hero() {
       </p>
 
       <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', flexWrap: 'wrap' }}>
-        {[
-          { label: t.hero.badgeMacOS, available: true },
-          { label: t.hero.badgeWindows, available: true },
-          { label: t.hero.badgeLinux, available: false },
-        ].map(({ label, available }) => (
-          <span
-            key={label}
-            style={{
-              fontFamily: 'var(--font-mono, "JetBrains Mono Variable", monospace)',
-              fontSize: '12px',
-              padding: '5px 14px',
-              borderRadius: '4px',
-              border: available ? '1px solid rgba(15, 253, 13, 0.3)' : '1px solid rgba(255, 255, 255, 0.08)',
-              color: available ? '#0ffd0d' : '#6b7280',
-              background: available ? 'rgba(15, 253, 13, 0.06)' : 'transparent',
-            }}
-          >
-            {label}
-          </span>
+        {sorted.map(({ label, href, platformKey }) => (
+          <DownloadButton key={platformKey} label={label} href={href} primary={platformKey === platform} />
         ))}
       </div>
 
-      <div style={{ marginTop: '48px' }}>
+      <div style={{ marginTop: '48px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '24px' }}>
         <img
           src={`${import.meta.env.BASE_URL}screenshot.png`}
-          alt="ClawWork screenshot"
+          alt="ClawWork Desktop"
           style={{
-            maxWidth: '100%',
+            flex: '1 1 0',
+            minWidth: 0,
+            maxWidth: '780px',
             borderRadius: '8px',
-            border: '1px solid rgba(255, 255, 255, 0.08)',
+            border: '1px solid var(--color-border)',
+            boxShadow: '0 20px 60px rgba(0, 0, 0, 0.6)',
+          }}
+        />
+        <img
+          src={`${import.meta.env.BASE_URL}screenshot-mobile.png`}
+          alt="ClawWork PWA"
+          style={{
+            flex: '0 0 auto',
+            height: '420px',
+            borderRadius: '12px',
+            border: '1px solid var(--color-border)',
             boxShadow: '0 20px 60px rgba(0, 0, 0, 0.6)',
           }}
         />
