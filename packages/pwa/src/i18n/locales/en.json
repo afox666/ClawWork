@@ -54,6 +54,7 @@
     "title": "Navigation drawer",
     "settings": "Settings",
     "signOut": "Sign out",
+    "signOutConfirm": "Sign out? All local data will be cleared.",
     "menuButton": "Open menu",
     "closeButton": "Close menu",
     "newTaskButton": "New task",
@@ -88,7 +89,14 @@
   "settings": {
     "darkMode": "Dark Mode",
     "lightMode": "Light Mode",
-    "language": "Language"
+    "language": "Language",
+    "version": "Version {{version}}",
+    "checkUpdate": "Check for Updates",
+    "checking": "Checking...",
+    "applyUpdate": "Update Available — Tap to Install",
+    "upToDate": "Already Up to Date",
+    "updateFailed": "Update Check Failed",
+    "updateUnavailable": "Updates Not Available"
   },
   "debugLog": {
     "title": "Gateway Log",

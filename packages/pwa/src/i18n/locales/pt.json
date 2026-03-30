@@ -51,6 +51,7 @@
     "title": "Painel de navegação",
     "settings": "Configurações",
     "signOut": "Sair",
+    "signOutConfirm": "Sair? Todos os dados locais serão apagados.",
     "menuButton": "Abrir menu",
     "closeButton": "Fechar menu",
     "newTaskButton": "Nova tarefa",
@@ -75,7 +76,18 @@
     }
   },
   "qrScanner": { "videoLabel": "Visor da câmera para escaneamento QR", "scanFrameLabel": "Área de escaneamento QR" },
-  "settings": { "darkMode": "Modo escuro", "lightMode": "Modo claro", "language": "Idioma" },
+  "settings": {
+    "darkMode": "Modo escuro",
+    "lightMode": "Modo claro",
+    "language": "Idioma",
+    "version": "Versão {{version}}",
+    "checkUpdate": "Verificar atualizações",
+    "checking": "Verificando...",
+    "applyUpdate": "Atualização disponível — toque para instalar",
+    "upToDate": "Já está atualizado",
+    "updateFailed": "Falha ao verificar atualizações",
+    "updateUnavailable": "Atualizações indisponíveis"
+  },
   "debugLog": {
     "title": "Registro do gateway",
     "reconnect": "Reconectar",

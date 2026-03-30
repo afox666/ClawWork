@@ -54,6 +54,7 @@
     "title": "导航菜单",
     "settings": "设置",
     "signOut": "退出登录",
+    "signOutConfirm": "确定退出？所有本地数据将被清除。",
     "menuButton": "打开菜单",
     "closeButton": "关闭菜单",
     "newTaskButton": "新建任务",
@@ -88,7 +89,14 @@
   "settings": {
     "darkMode": "深色模式",
     "lightMode": "浅色模式",
-    "language": "语言"
+    "language": "语言",
+    "version": "版本 {{version}}",
+    "checkUpdate": "检查更新",
+    "checking": "检查中...",
+    "applyUpdate": "有可用更新 — 点击安装",
+    "upToDate": "已是最新版本",
+    "updateFailed": "检查更新失败",
+    "updateUnavailable": "暂不支持更新"
   },
   "debugLog": {
     "title": "网关日志",
