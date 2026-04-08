@@ -32,7 +32,10 @@ export interface ChatComposerDeps {
     setProcessing: (taskId: string, processing: boolean) => void;
     clearMessages: (taskId: string) => void;
     processingBySession: Set<string>;
-    activeTurnBySession: Record<string, { streamingText: string; streamingThinking: string }>;
+    activeTurnBySession: Record<
+      string,
+      { streamingText: string; streamingThinking: string; toolCalls: { id: string }[] }
+    >;
   };
 
   persistMessage: (msg: {
@@ -224,15 +227,12 @@ export function createChatComposer(deps: ChatComposerDeps) {
         setTimeout(() => {
           responseTimers.delete(task.id);
           const s = deps.getMessageStore();
+          const stillProcessing = watchKeys.some((sk) => s.processingBySession.has(sk));
           const anyResponded = watchKeys.some((sk) => {
             const turn = s.activeTurnBySession[sk];
-            return turn && (turn.streamingText || turn.streamingThinking);
+            return turn && (turn.streamingText || turn.streamingThinking || turn.toolCalls.length > 0);
           });
-          if (anyResponded) return;
-
-          for (const sk of watchKeys) {
-            if (s.processingBySession.has(sk)) s.setProcessing(sk, false);
-          }
+          if (stillProcessing || anyResponded) return;
           const appError = buildAppError({
             source: 'gateway',
             stage: 'lifecycle',
