@@ -4,6 +4,7 @@ coverage/
 .claude/
 .codex/
 .serena/
+.opencode/
 pnpm-lock.yaml
 keynote/slides.md
 *.db
