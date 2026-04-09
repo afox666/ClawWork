@@ -75,6 +75,7 @@
     "gateway": "Gateway",
     "justNow": "agora mesmo",
     "light": "Claro",
+    "minAgo": "{{count}} min atrás",
     "missing": "Ausente",
     "navigate": "navegar",
     "newTask": "Nova Tarefa",

@@ -75,6 +75,7 @@
     "gateway": "Gateway",
     "justNow": "剛剛",
     "light": "淺色",
+    "minAgo": "{{count}} 分鐘前",
     "missing": "缺少",
     "navigate": "導覽",
     "newTask": "新任務",

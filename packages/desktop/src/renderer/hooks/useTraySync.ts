@@ -2,13 +2,14 @@ import { useEffect, useRef } from 'react';
 import { useTaskStore } from '../stores/taskStore';
 import { useUiStore } from '../stores/uiStore';
 import { useMessageStore } from '../stores/messageStore';
+import i18n from '../i18n';
 
 function formatDuration(updatedAt: string): string {
   const ms = Date.now() - new Date(updatedAt).getTime();
   const min = Math.floor(ms / 60000);
-  if (min < 1) return 'just now';
-  if (min === 1) return '1 min ago';
-  return `${min} min ago`;
+  if (min < 1) return i18n.t('common.justNow');
+  if (min === 1) return i18n.t('common.minAgo', { count: 1 });
+  return i18n.t('common.minAgo', { count: min });
 }
 
 export function useTraySync(): void {
@@ -38,12 +39,12 @@ export function useTraySync(): void {
 
     const activeTurnBySession = useMessageStore.getState().activeTurnBySession;
     const activeTasks = activeIds.map((id) => {
-      const t = tasks.find((task) => task.id === id)!;
+      const task = tasks.find((t) => t.id === id)!;
       return {
         taskId: id,
-        title: t.title || 'Untitled',
-        snippet: (activeTurnBySession[t.sessionKey]?.streamingText ?? '').slice(0, 60),
-        duration: formatDuration(t.updatedAt),
+        title: task.title || i18n.t('common.noTitle'),
+        snippet: (activeTurnBySession[task.sessionKey]?.streamingText ?? '').slice(0, 60),
+        duration: formatDuration(task.updatedAt),
       };
     });
 

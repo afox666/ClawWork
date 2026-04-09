@@ -75,6 +75,7 @@
     "gateway": "Gateway",
     "justNow": "just now",
     "light": "Light",
+    "minAgo": "{{count}} min ago",
     "missing": "Missing",
     "navigate": "navigate",
     "newTask": "New Task",

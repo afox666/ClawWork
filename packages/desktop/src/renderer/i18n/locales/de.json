@@ -75,6 +75,7 @@
     "gateway": "Gateway",
     "justNow": "gerade eben",
     "light": "Hell",
+    "minAgo": "vor {{count}} Min.",
     "missing": "Fehlt",
     "navigate": "Navigieren",
     "newTask": "Neue Aufgabe",

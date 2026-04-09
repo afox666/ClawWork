@@ -75,6 +75,7 @@
     "gateway": "게이트웨이",
     "justNow": "방금",
     "light": "라이트",
+    "minAgo": "{{count}}분 전",
     "missing": "누락",
     "navigate": "이동",
     "newTask": "새 작업",

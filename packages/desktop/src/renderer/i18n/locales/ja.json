@@ -75,6 +75,7 @@
     "gateway": "ゲートウェイ",
     "justNow": "たった今",
     "light": "ライト",
+    "minAgo": "{{count}} 分前",
     "missing": "不明",
     "navigate": "移動",
     "newTask": "新規タスク",
