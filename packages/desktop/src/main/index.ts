@@ -24,7 +24,7 @@ import { unwatchAll } from './context/file-watcher.js';
 import { isInstallingUpdate } from './auto-updater.js';
 import { initTray, destroyTray } from './tray.js';
 import { initQuickLaunch, destroyQuickLaunch } from './quick-launch.js';
-import { getWorkspacePath, readConfig, updateConfig } from './workspace/config.js';
+import { getWorkspacePath, getDefaultWorkspacePath, readConfig, updateConfig } from './workspace/config.js';
 import { initDatabase, closeDatabase } from './db/index.js';
 
 protocol.registerSchemesAsPrivileged([
@@ -224,25 +224,23 @@ if (!gotLock) {
       }
     });
 
-    const wsPath = getWorkspacePath();
-    if (wsPath) {
-      getDebugLogger().info({ domain: 'workspace', event: 'workspace.detected', data: { workspacePath: wsPath } });
-      try {
-        getDebugLogger().info({ domain: 'db', event: 'db.init.start', data: { workspacePath: wsPath } });
-        initDatabase(wsPath);
-        getDebugLogger().info({ domain: 'db', event: 'db.init.ok', data: { workspacePath: wsPath } });
-      } catch (e) {
-        const err = e instanceof Error ? e : new Error(String(e));
-        getDebugLogger().error({
-          domain: 'db',
-          event: 'db.init.failed',
-          data: { workspacePath: wsPath },
-          error: { name: err.name, message: err.message, stack: err.stack },
-        });
-        dialog.showErrorBox('Database Error', err.message);
-        app.quit();
-        return;
-      }
+    const wsPath = getWorkspacePath() ?? getDefaultWorkspacePath();
+    getDebugLogger().info({ domain: 'workspace', event: 'workspace.detected', data: { workspacePath: wsPath } });
+    try {
+      getDebugLogger().info({ domain: 'db', event: 'db.init.start', data: { workspacePath: wsPath } });
+      initDatabase(wsPath);
+      getDebugLogger().info({ domain: 'db', event: 'db.init.ok', data: { workspacePath: wsPath } });
+    } catch (e) {
+      const err = e instanceof Error ? e : new Error(String(e));
+      getDebugLogger().error({
+        domain: 'db',
+        event: 'db.init.failed',
+        data: { workspacePath: wsPath },
+        error: { name: err.name, message: err.message, stack: err.stack },
+      });
+      dialog.showErrorBox('Database Error', err.message);
+      app.quit();
+      return;
     }
 
     createWindow();
