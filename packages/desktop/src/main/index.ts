@@ -224,7 +224,7 @@ if (!gotLock) {
       }
     });
 
-    const wsPath = getWorkspacePath() ?? getDefaultWorkspacePath();
+    const wsPath = getWorkspacePath() || getDefaultWorkspacePath();
     getDebugLogger().info({ domain: 'workspace', event: 'workspace.detected', data: { workspacePath: wsPath } });
     try {
       getDebugLogger().info({ domain: 'db', event: 'db.init.start', data: { workspacePath: wsPath } });
