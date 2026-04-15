@@ -3,9 +3,11 @@ import type {
   ToolCall,
   ToolCallStatus,
   ModelListResponse,
+  ModelCatalogEntry,
   AgentListResponse,
   SkillStatusReport,
   ToolsCatalog,
+  IpcResult,
 } from '@clawwork/shared';
 import { extractText, extractThinking, extractToolCalls, parseToolArgs } from '../protocol/parse-content.js';
 import type { ChatEventPayload } from '../protocol/types.js';
@@ -582,17 +584,60 @@ export function createGatewayDispatcher(deps: GatewayDispatcherDeps) {
     });
   }
 
+  function filterModelsByConfig(
+    models: ModelCatalogEntry[],
+    configRes: IpcResult | { ok: false },
+  ): ModelCatalogEntry[] {
+    if (!configRes.ok || !configRes.result) return models;
+    const raw = configRes.result as Record<string, unknown>;
+    const configObj = (raw.config as Record<string, unknown>) ?? (raw.parsed as Record<string, unknown>) ?? undefined;
+    if (!configObj) return models;
+    const modelsSection = configObj.models as
+      | {
+          providers?: Record<string, { models?: { id: string; name?: string }[] }>;
+        }
+      | undefined;
+    if (!modelsSection?.providers || Object.keys(modelsSection.providers).length === 0) return models;
+
+    const gatewayModelMap = new Map(models.map((m) => [m.id, m]));
+    const result: ModelCatalogEntry[] = [];
+
+    for (const [providerKey, providerConfig] of Object.entries(modelsSection.providers)) {
+      if (!Array.isArray(providerConfig.models)) continue;
+      for (const cm of providerConfig.models) {
+        if (!cm.id) continue;
+        const qualifiedId = `${providerKey}/${cm.id}`;
+        const existing = gatewayModelMap.get(cm.id) ?? gatewayModelMap.get(qualifiedId);
+        if (existing) {
+          result.push(existing);
+        } else {
+          result.push({
+            id: cm.id,
+            name: cm.name ?? cm.id,
+            provider: providerKey,
+          });
+        }
+      }
+    }
+
+    return result.length > 0 ? result : models;
+  }
+
   async function fetchCatalogs(gatewayId: string): Promise<void> {
     try {
-      const [modelsRes, agentsRes, toolsRes, skillsRes] = await Promise.all([
+      const [modelsRes, agentsRes, toolsRes, skillsRes, configRes] = await Promise.all([
         deps.gateway.listModels(gatewayId),
         deps.gateway.listAgents(gatewayId),
         deps.gateway.getToolsCatalog(gatewayId),
         deps.gateway.getSkillsStatus(gatewayId),
+        deps.gateway.getConfig(gatewayId).catch(() => ({ ok: false }) as { ok: false }),
       ]);
       if (modelsRes.ok && modelsRes.result) {
         const data = modelsRes.result as unknown as ModelListResponse;
-        if (data.models) deps.setModelCatalogForGateway(gatewayId, data.models);
+        if (data.models) {
+          const filtered = filterModelsByConfig(data.models, configRes);
+          deps.setModelCatalogForGateway(gatewayId, filtered);
+        }
       }
       if (agentsRes.ok && agentsRes.result) {
         const data = agentsRes.result as unknown as AgentListResponse;

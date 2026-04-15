@@ -421,8 +421,12 @@ export default function CronJobDialog({ open, onOpenChange, gatewayId, editingJo
     let cancelled = false;
 
     setLoadingCatalogs(true);
-    Promise.all([window.clawwork.listAgents(gatewayId), window.clawwork.listModels(gatewayId)])
-      .then(([agentsRes, modelsRes]) => {
+    Promise.all([
+      window.clawwork.listAgents(gatewayId),
+      window.clawwork.listModels(gatewayId),
+      window.clawwork.getConfig(gatewayId).catch(() => ({ ok: false }) as { ok: false; result?: undefined }),
+    ])
+      .then(([agentsRes, modelsRes, configRes]) => {
         if (cancelled) return;
 
         if (agentsRes.ok && agentsRes.result) {
@@ -440,7 +444,31 @@ export default function CronJobDialog({ open, onOpenChange, gatewayId, editingJo
 
         if (modelsRes.ok && modelsRes.result) {
           const data = modelsRes.result as unknown as ModelListResponse;
-          setModelOptions((data.models ?? []).map((entry) => ({ id: entry.id, name: entry.name ?? entry.id })));
+          let models = data.models ?? [];
+          if (configRes.ok && configRes.result) {
+            const raw = configRes.result as unknown as Record<string, unknown>;
+            const configObj =
+              (raw.config as Record<string, unknown>) ?? (raw.parsed as Record<string, unknown>) ?? undefined;
+            const modelsSection = configObj?.models as
+              | {
+                  providers?: Record<string, { models?: { id: string; name?: string }[] }>;
+                }
+              | undefined;
+            if (modelsSection?.providers && Object.keys(modelsSection.providers).length > 0) {
+              const gatewayModelMap = new Map(models.map((m) => [m.id, m]));
+              const configModels: typeof models = [];
+              for (const [providerKey, providerConfig] of Object.entries(modelsSection.providers)) {
+                if (!Array.isArray(providerConfig.models)) continue;
+                for (const cm of providerConfig.models) {
+                  if (!cm.id) continue;
+                  const existing = gatewayModelMap.get(cm.id) ?? gatewayModelMap.get(`${providerKey}/${cm.id}`);
+                  configModels.push(existing ?? { id: cm.id, name: cm.name ?? cm.id, provider: providerKey });
+                }
+              }
+              if (configModels.length > 0) models = configModels;
+            }
+          }
+          setModelOptions(models.map((entry) => ({ id: entry.id, name: entry.name ?? entry.id })));
         }
       })
       .catch(() => {

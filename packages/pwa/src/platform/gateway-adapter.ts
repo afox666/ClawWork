@@ -336,6 +336,18 @@ export function createBrowserGatewayTransport(
       }
     },
 
+    async getConfig(gatewayId) {
+      const client = getClient(gatewayId);
+      if (!client?.isConnected)
+        return { ok: false, error: 'gateway not connected', errorCode: 'GATEWAY_NOT_CONNECTED' };
+      try {
+        const result = await client.getConfig();
+        return { ok: true, result };
+      } catch (err) {
+        return { ok: false, error: err instanceof Error ? err.message : 'getConfig failed' };
+      }
+    },
+
     async getToolsCatalog(gatewayId, agentId) {
       const client = getClient(gatewayId);
       if (!client?.isConnected)

@@ -269,6 +269,10 @@ export class BrowserGatewayClient {
     return this.sendReq('models.list', {});
   }
 
+  async getConfig(): Promise<Record<string, unknown>> {
+    return this.sendReq('config.get', {});
+  }
+
   async listAgents(): Promise<Record<string, unknown>> {
     return this.sendReq('agents.list', {});
   }
